@@ -1,91 +1,96 @@
-# 新一代ERP系统
+# New Generation ERP System
 
-基于LLM、智能Agent和联邦学习的新一代ERP系统。
+A modern Enterprise Resource Planning (ERP) system built with FastAPI and Vue.js, designed to streamline business operations and improve efficiency.
 
-## 功能特点
+## Features
 
-- 基于LLM的智能编排器，支持自然语言指令处理
-- 模块化的智能Agent架构
-- 支持联邦学习的数据处理
-- 基于MCP协议的通信机制
-- 端到端的自动化流程
+- **User Management**: Comprehensive user authentication and role-based access control
+- **Order Processing**: Complete order lifecycle management from creation to fulfillment
+- **Inventory Management**: Real-time tracking of products and stock levels
+- **Supplier Management**: Maintain supplier information and relationships
+- **Financial Management**: 
+  - Account management
+  - Transaction tracking
+  - Budget control
+  - Financial reporting (Balance Sheet, Income Statement, Cash Flow)
 
-## 系统要求
+## Tech Stack
 
-- Python 3.8+
-- CUDA支持的GPU（推荐）
+### Backend
+- FastAPI (Python)
+- SQLAlchemy (ORM)
+- Alembic (Database Migrations)
+- PostgreSQL (Database)
 
-## 安装
+### Frontend
+- Vue.js 3
+- TypeScript
+- Element Plus (UI Components)
+- Vuex (State Management)
+- Vue Router
 
-1. 克隆仓库：
-```bash
-git clone [repository_url]
-cd newERP
+## Project Structure
+
+```
+├── src/
+│   ├── api/           # API endpoints
+│   ├── models/        # Database models
+│   ├── scripts/       # Utility scripts
+│   └── tests/         # Test files
+├── frontend/          # Vue.js frontend
+├── alembic/           # Database migrations
+└── requirements.txt   # Python dependencies
 ```
 
-2. 创建虚拟环境：
+## Setup Instructions
+
+1. Clone the repository:
 ```bash
+git clone https://github.com/yourusername/NewGenerationERP.git
+cd NewGenerationERP
+```
+
+2. Set up the backend:
+```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# 或
-venv\Scripts\activate  # Windows
-```
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-3. 安装依赖：
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Run database migrations
+alembic upgrade head
+
+# Start the API server
+python -m src.api.main
 ```
 
-## 运行
-
-1. 启动API服务：
+3. Set up the frontend:
 ```bash
-python src/api/main.py
+cd frontend
+npm install
+npm run serve
 ```
 
-2. 访问API文档：
-```
-http://localhost:8000/docs
-```
+4. Access the application:
+- API Documentation: http://localhost:8082/docs
+- Web Interface: http://localhost:8080
 
-## 项目结构
+## Development Status
 
-```
-src/
-├── agents/          # 智能Agent实现
-├── core/            # 核心组件
-├── models/          # 机器学习模型
-├── utils/           # 工具函数
-├── api/             # API接口
-└── database/        # 数据库相关
-```
+- [x] Backend API implementation
+- [x] Database schema and migrations
+- [x] Basic CRUD operations
+- [ ] Frontend development
+- [ ] User authentication
+- [ ] Financial reporting
+- [ ] Data visualization
 
-## 开发计划
+## Contributing
 
-1. 第一阶段：基础架构搭建
-   - [x] LLM编排器
-   - [x] 基础Agent框架
-   - [ ] MCP协议实现
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-2. 第二阶段：核心功能实现
-   - [ ] 订单处理Agent
-   - [ ] 生产计划Agent
-   - [ ] 采购Agent
-   - [ ] 库存Agent
+## License
 
-3. 第三阶段：高级功能
-   - [ ] 联邦学习支持
-   - [ ] 预测分析
-   - [ ] 自动化决策
-
-## 贡献指南
-
-1. Fork项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建Pull Request
-
-## 许可证
-
-MIT License 
+This project is licensed under the MIT License - see the LICENSE file for details. 

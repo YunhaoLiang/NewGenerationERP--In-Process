@@ -20,6 +20,22 @@ class PredictionAgent(BaseAgent):
         self.scaler = StandardScaler()
         self.prediction_horizon = 30  # 预测时间范围（天）
         
+        # 添加基本的训练数据
+        self._initialize_model()
+        
+    def _initialize_model(self):
+        # 生成示例训练数据
+        np.random.seed(42)
+        X = np.random.rand(100, 5)  # 5个特征：月份、季节、历史销量、价格、库存
+        y = 2 * X[:, 0] + 3 * X[:, 1] - 1.5 * X[:, 2] + X[:, 3] - 0.5 * X[:, 4] + np.random.normal(0, 0.1, 100)
+        
+        # 标准化数据
+        X_scaled = self.scaler.fit_transform(X)
+        
+        # 训练模型
+        self.model.fit(X_scaled, y)
+        self.is_trained = True
+        
     async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理预测任务
         
