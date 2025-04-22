@@ -21,7 +21,7 @@ class PlanningAgent(BaseAgent):
         self.production_capacity = 100  # 每日产能
         self.working_days = 5  # 每周工作日
         
-    async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
+    async def _process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理生产计划任务
         
         Args:

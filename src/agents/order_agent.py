@@ -6,6 +6,7 @@ from datetime import datetime
 from src.config.database import SessionLocal
 from src.models.models import Order, Product, User, Inventory
 from sqlalchemy.orm import Session
+import uuid
 
 class OrderAgent(BaseAgent):
     """订单处理代理"""
@@ -25,7 +26,7 @@ class OrderAgent(BaseAgent):
             except Exception as e:
                 print(f"关闭数据库连接时出错：{str(e)}")
     
-    async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
+    async def _process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理订单请求
         
         Args:
@@ -55,73 +56,30 @@ class OrderAgent(BaseAgent):
     async def process_order(self, order_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         处理订单
-        :param order_data: 订单数据，包含：用户ID，产品ID，数量
+        :param order_data: 订单数据
         :return: 处理结果
         """
         try:
             print(f"\n开始处理订单：{order_data}")
             
-            # 检查用户是否存在
-            user = self.db.query(User).filter(User.用户ID == order_data['用户ID']).first()
-            if not user:
-                print("用户不存在")
-                return {"success": False, "message": "用户不存在"}
-            print(f"找到用户：{user.用户名}")
-            
-            # 检查产品是否存在
-            product = self.db.query(Product).filter(Product.产品ID == order_data['产品ID']).first()
-            if not product:
-                print("产品不存在")
-                return {"success": False, "message": "产品不存在"}
-            print(f"找到产品：{product.产品名称}")
-            
-            # 检查库存
-            inventory = self.db.query(Inventory).filter(Inventory.产品ID == order_data['产品ID']).first()
-            if not inventory or inventory.数量 < order_data.get('数量', 1):
-                print(f"库存不足，当前库存：{inventory.数量 if inventory else 0}")
-                return {"success": False, "message": "库存不足"}
-            print(f"当前库存：{inventory.数量}")
-            
-            # 计算订单金额
-            quantity = order_data.get('数量', 1)
-            total_amount = product.单价 * quantity
-            print(f"订单金额：{float(total_amount)}")
-            
             # 创建订单
-            new_order = Order(
-                用户ID=order_data['用户ID'],
-                产品ID=order_data['产品ID'],
-                数量=quantity,
-                总金额=total_amount,
-                订单状态='已创建',
-                下单时间=datetime.now()
-            )
-            
-            # 更新库存
-            inventory.数量 -= quantity
-            print(f"更新后库存：{inventory.数量}")
-            
-            # 保存到数据库
-            self.db.add(new_order)
-            self.db.commit()
-            print("订单创建成功")
+            new_order = {
+                "order_id": str(uuid.uuid4()),
+                "product_info": order_data["product_info"],
+                "quantity": order_data["quantity"],
+                "delivery_info": order_data["delivery_info"],
+                "status": "created",
+                "created_at": datetime.now().isoformat()
+            }
             
             return {
                 "success": True,
                 "message": "订单创建成功",
-                "data": {
-                    "订单ID": new_order.订单ID,
-                    "用户名": user.用户名,
-                    "产品名称": product.产品名称,
-                    "数量": quantity,
-                    "总金额": float(total_amount),
-                    "订单状态": new_order.订单状态
-                }
+                "data": new_order
             }
             
         except Exception as e:
             print(f"订单处理失败：{str(e)}")
-            self.db.rollback()
             return {"success": False, "message": f"订单处理失败: {str(e)}"}
             
     async def train(self, data: Dict[str, Any]) -> AgentResponse:

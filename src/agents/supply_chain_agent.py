@@ -16,7 +16,7 @@ class SupplyChainAgent(BaseAgent):
         self.safety_stock_factor = 1.2  # 安全库存系数
         self.lead_time_factor = 1.5  # 提前期系数
         
-    async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
+    async def _process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理供应链任务
         
         Args:

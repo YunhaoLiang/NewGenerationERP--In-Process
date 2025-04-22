@@ -17,6 +17,19 @@ def create_view(view_name, view_sql):
     except Exception as e:
         print(f'创建视图 {view_name} 时出错：{str(e)}')
 
+def create_views():
+    """创建数据库视图"""
+    try:
+        # 读取并执行账户余额视图SQL
+        with open('src/database/views/vw_account_balance.sql', 'r', encoding='utf-8') as f:
+            sql = f.read()
+            with engine.connect() as conn:
+                conn.execute(sql)
+                conn.commit()
+        print("财务账户余额视图创建成功")
+    except Exception as e:
+        print(f"创建视图时出错：{str(e)}")
+
 if __name__ == '__main__':
     # 订单详情视图
     order_view_sql = """
@@ -28,7 +41,7 @@ if __name__ == '__main__':
         o.quantity,
         o.total_amount,
         o.status,
-        o.created_at as order_date
+        o.created_at as order_created_at
     FROM orders o
     JOIN users u ON o.user_id = u.user_id
     JOIN products p ON o.product_id = p.product_id
@@ -52,17 +65,8 @@ if __name__ == '__main__':
     create_view('vw_inventory_status', inventory_view_sql)
 
     # 财务账户余额视图
-    account_view_sql = """
-    CREATE VIEW vw_account_balance AS
-    SELECT 
-        fa.account_id,
-        fa.account_name,
-        fa.account_type,
-        fa.balance,
-        fa.currency,
-        fa.updated_at as last_updated
-    FROM financial_accounts fa
-    """
+    with open('src/database/views/vw_account_balance.sql', 'r', encoding='utf-8') as f:
+        account_view_sql = f.read()
     create_view('vw_account_balance', account_view_sql)
 
     # 预算执行情况视图
@@ -95,7 +99,7 @@ if __name__ == '__main__':
         t.amount,
         t.description,
         t.transaction_date,
-        t.created_at
+        t.created_at as transaction_created_at
     FROM transactions t
     JOIN financial_accounts fa ON t.account_id = fa.account_id
     """
@@ -121,4 +125,6 @@ if __name__ == '__main__':
     """
     create_view('vw_supplier_products', supplier_products_sql)
 
-    print('所有视图创建完成！') 
+    print('所有视图创建完成！')
+
+    create_views() 

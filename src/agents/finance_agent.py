@@ -17,7 +17,7 @@ class FinanceAgent(BaseAgent):
         self.payment_statuses = ["待支付", "已支付", "已取消"]
         self.invoice_statuses = ["待开票", "已开票", "已作废"]
         
-    async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
+    async def _process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理财务任务
         
         Args:

@@ -36,7 +36,7 @@ class PredictionAgent(BaseAgent):
         self.model.fit(X_scaled, y)
         self.is_trained = True
         
-    async def process(self, parameters: Dict[str, Any]) -> AgentResponse:
+    async def _process(self, parameters: Dict[str, Any]) -> AgentResponse:
         """处理预测任务
         
         Args:
