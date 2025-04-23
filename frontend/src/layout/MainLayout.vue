@@ -222,7 +222,8 @@ const handleLogout = () => {
   padding: 0;
   background: #f0f2f5;
   position: relative;
-  overflow: hidden;
+  overflow-x: auto;
+  min-width: 800px;
 }
 
 .navbar {

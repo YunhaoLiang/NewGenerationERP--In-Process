@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.nlp import router as nlp_router
 from src.api.orders import router as orders_router
 from src.api.products import router as products_router
+from src.api.dashboard import router as dashboard_router
 from src.config.database import engine
 from sqlalchemy import text
 
@@ -20,10 +21,11 @@ app.add_middleware(
 # 创建数据库表
 def init_db():
     with engine.connect() as conn:
-        # 删除现有表
-        conn.execute(text("DROP TABLE IF EXISTS order_items"))
-        conn.execute(text("DROP TABLE IF EXISTS orders"))
-        conn.execute(text("DROP TABLE IF EXISTS products"))
+        # 删除现有表（使用CASCADE）
+        conn.execute(text("DROP TABLE IF EXISTS order_items CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS orders CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS products CASCADE"))
+        conn.execute(text("DROP TABLE IF EXISTS inventory CASCADE"))
         
         # 创建产品表
         conn.execute(text("""
@@ -78,6 +80,7 @@ init_db()
 app.include_router(nlp_router, prefix="/api/nlp", tags=["自然语言处理"])
 app.include_router(orders_router, prefix="/api/orders", tags=["orders"])
 app.include_router(products_router, prefix="/api/products", tags=["products"])
+app.include_router(dashboard_router, prefix="/api/dashboard", tags=["dashboard"])
 
 @app.get("/")
 async def root():
