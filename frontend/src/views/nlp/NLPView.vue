@@ -63,7 +63,7 @@
         <div class="result-section">
           <h3>执行结果</h3>
           <div v-if="loading" class="loading-area">
-            <el-progress type="circle" :percentage="percentage" />
+            <el-progress type="circle" :percentage="String(percentage)" />
             <p>正在处理中...</p>
           </div>
           <div v-else-if="result" class="result-area">
@@ -85,8 +85,10 @@
                 </template>
                 <el-descriptions :column="1" border>
                   <el-descriptions-item label="请求类型" class="description-item">
-                    <div class="scrollable-content">
-                      {{ result.result.type }}
+                    <div class="scrollable-content request-type">
+                      <el-tag :type="getRequestTypeTagType(result.result.type)" size="medium">
+                        {{ formatRequestType(result.result.type) }}
+                      </el-tag>
                     </div>
                   </el-descriptions-item>
                   <el-descriptions-item label="处理结果" class="description-item">
@@ -267,7 +269,7 @@ import type { NLPResponse } from '@/services/nlp'
 
 const userInput = ref('')
 const loading = ref(false)
-const percentage = ref(0)
+const percentage = ref<number>(0)
 const result = ref<NLPResponse | null>(null)
 
 // 历史记录
@@ -363,6 +365,36 @@ const formatAgentName = (name: string) => {
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
+}
+
+// 格式化请求类型
+const formatRequestType = (type: string) => {
+  const typeMap: { [key: string]: string } = {
+    'order_processing': '订单处理',
+    'order_query': '订单查询',
+    'report_generation': '报表生成',
+    'data_analysis': '数据分析',
+    'inventory_management': '库存管理',
+    'supplier_management': '供应商管理',
+    'general_inquiry': '一般查询'
+  }
+  
+  return typeMap[type] || type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+// 获取请求类型对应的标签类型
+const getRequestTypeTagType = (type: string) => {
+  const typeTagMap: { [key: string]: string } = {
+    'order_processing': 'success',
+    'order_query': 'info',
+    'report_generation': 'warning',
+    'data_analysis': 'primary',
+    'inventory_management': 'success',
+    'supplier_management': 'warning',
+    'general_inquiry': 'info'
+  }
+  
+  return typeTagMap[type] || 'info'
 }
 </script>
 
@@ -692,5 +724,18 @@ const formatAgentName = (name: string) => {
 .scrollable-content::-webkit-scrollbar-track {
   background-color: #f5f7fa;
   border-radius: 3px;
+}
+
+.request-type {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.request-type .el-tag {
+  font-size: 14px;
+  padding: 0 10px;
+  height: 28px;
+  line-height: 28px;
 }
 </style> 

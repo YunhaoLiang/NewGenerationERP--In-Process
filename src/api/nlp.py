@@ -21,6 +21,24 @@ class NLPResponse(BaseModel):
     message: str
     timestamp: str
 
+def determine_request_type(text: str) -> str:
+    """根据输入文本确定请求类型"""
+    # 基于关键词匹配来确定请求类型
+    if re.search(r'(订购|订单|购买|买|订购)', text) and re.search(r'(\d+)台', text):
+        return "order_processing"
+    elif re.search(r'(查询|检索|显示|查看|看).*?订单', text):
+        return "order_query"
+    elif re.search(r'(生成|创建|制作|出).*?(报表|报告|统计)', text):
+        return "report_generation"
+    elif re.search(r'(分析|评估|比较|预测)', text):
+        return "data_analysis"
+    elif re.search(r'(库存|盘点)', text):
+        return "inventory_management"
+    elif re.search(r'(供应商|供货商)', text):
+        return "supplier_management"
+    else:
+        return "general_inquiry"
+
 def extract_order_info(text: str) -> Dict[str, Any]:
     """从文本中提取订单信息"""
     info = {
@@ -46,7 +64,7 @@ def extract_order_info(text: str) -> Dict[str, Any]:
         "cpu": re.search(r'(Intel\s+i\d+|AMD\s+Ryzen\s+\d+)', text),
         "memory": re.search(r'(\d+)GB', text),
         "storage": re.search(r'(\d+)TB', text),
-        "gpu": re.search(r'(NVIDIA\s+RTX\s+\d+|AMD\s+Radeon\s+\w+)', text)
+        "gpu": re.search(r'(NVIDIA\s+RTX\s+\d+|AMD\s+Radeon\s+\w+|RTX\d+)', text)
     }
     
     info["specs"] = {
@@ -66,13 +84,36 @@ def extract_order_info(text: str) -> Dict[str, Any]:
     
     return info
 
+def generate_content_based_on_type(request_type: str, info: Dict[str, Any]) -> str:
+    """根据请求类型生成相应的内容"""
+    if request_type == "order_processing":
+        return f"已完成订单处理：{info['quantity']}台电脑订单已创建，预计交付日期 {info['delivery_date']}"
+    elif request_type == "order_query":
+        return "已查询订单信息，共找到3条相关记录"
+    elif request_type == "report_generation":
+        return "已生成销售报表，报表周期：本月，包含销售总额、订单数量和客户分布等信息"
+    elif request_type == "data_analysis":
+        return "已完成数据分析，分析结果包含趋势预测和异常检测"
+    elif request_type == "inventory_management":
+        return "已完成库存管理操作，当前库存状态已更新"
+    elif request_type == "supplier_management":
+        return "已完成供应商管理操作，相关信息已更新"
+    else:
+        return "已处理您的请求，但未能匹配到具体业务类型"
+
 @router.post("/process")
 async def process(request: NLPRequest):
     try:
         logger.info(f"收到处理请求: {request.text}")
         
+        # 确定请求类型
+        request_type = determine_request_type(request.text)
+        
         # 提取订单信息
         order_info = extract_order_info(request.text)
+        
+        # 根据请求类型生成相应内容
+        response_content = generate_content_based_on_type(request_type, order_info)
         
         # 模拟各个 Agent 的处理过程
         agents_process = {
@@ -151,11 +192,11 @@ async def process(request: NLPRequest):
         result = {
             "status": "success",
             "result": {
-                "type": "order_processing",
-                "content": f"已完成订单处理：{order_info['quantity']}台电脑订单已创建，"
-                          f"预计交付日期 {order_info['delivery_date']}",
+                "type": request_type,  # 动态设置请求类型
+                "content": response_content,  # 动态生成内容
                 "details": {
                     "order_info": order_info,
+                    "request_type": request_type,  # 额外添加请求类型信息
                     "agents_process": agents_process,
                     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }
